@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos locales (no subir)
+chat_ids.json
+*.log
+alertas.log
+/tmp/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Node (si usas npm)
+node_modules/
+package-lock.json
+
+# Datos sensibles (NO SUBIR)
+.env
+secrets.json
+credentials.json

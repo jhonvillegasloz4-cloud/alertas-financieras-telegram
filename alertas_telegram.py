@@ -83,7 +83,6 @@ async def main():
         
         print("Iniciando alertas de Telegram...")
         
-        # Ejecutar alertas con delay entre mensajes
         await gestor.alerta_pago_proximo()
         await asyncio.sleep(2)
         
@@ -92,10 +91,10 @@ async def main():
         
         await gestor.resumen_diario()
         
-        # Cerrar conexión una sola vez al final
-        await gestor.cerrar()
+        # No cerrar explícitamente, Python lo maneja automáticamente
         print("Alertas completadas exitosamente")
         
+           
     except Exception as e:
         print(f"Error en main: {e}")
         raise

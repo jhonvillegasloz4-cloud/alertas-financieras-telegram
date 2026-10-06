@@ -1,8 +1,8 @@
-import asyncio
+iimport asyncio
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from telegram import Bot
-from telegram.error import TelegramError
+from telegram.error import TelegramError, RetryAfter
 
 class ConfiguracionAlertas:
     def __init__(self):
@@ -16,18 +16,11 @@ class ConfiguracionAlertas:
 class GestorAlertasTelegram:
     def __init__(self, config):
         self.config = config
-        self.bot = None
-    
-    async def inicializar_bot(self):
-        """Inicializa el bot de Telegram en contexto async"""
         self.bot = Bot(token=self.config.bot_token)
     
     async def enviar_a_ambos(self, mensaje):
-        """Envía mensaje a ambos usuarios"""
+        """Envía mensaje a ambos usuarios (sin cerrar la conexión)"""
         try:
-            if not self.bot:
-                await self.inicializar_bot()
-            
             # Enviar a Jhonatan
             await self.bot.send_message(
                 chat_id=self.config.chat_id_jhonatan,
@@ -42,10 +35,11 @@ class GestorAlertasTelegram:
             )
             print(f"[{datetime.now()}] Mensaje enviado a Esposa: OK")
             
+        except RetryAfter as e:
+            print(f"Flood control: Esperar {e.retry_after} segundos")
+            await asyncio.sleep(e.retry_after + 1)
         except TelegramError as e:
             print(f"Error enviando mensaje: {e}")
-        finally:
-            await self.bot.close()
     
     async def alerta_pago_proximo(self):
         """Alerta de pago próximo a vencer"""
@@ -76,6 +70,10 @@ class GestorAlertasTelegram:
             "Revisa tus pendientes."
         )
         await self.enviar_a_ambos(mensaje)
+    
+    async def cerrar(self):
+        """Cierra la conexión del bot"""
+        await self.bot.close()
 
 async def main():
     """Función principal async"""
@@ -87,10 +85,15 @@ async def main():
         
         # Ejecutar alertas con delay entre mensajes
         await gestor.alerta_pago_proximo()
-        await asyncio.sleep(3)  # Espera 3 segundos
+        await asyncio.sleep(2)
+        
         await gestor.alertas_hoy()
-        await asyncio.sleep(3)  # Espera 3 segundos
+        await asyncio.sleep(2)
+        
         await gestor.resumen_diario()
+        
+        # Cerrar conexión una sola vez al final
+        await gestor.cerrar()
         print("Alertas completadas exitosamente")
         
     except Exception as e:

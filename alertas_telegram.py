@@ -85,13 +85,12 @@ async def main():
         
         print("Iniciando alertas de Telegram...")
         
-        # Ejecutar alertas
+        # Ejecutar alertas con delay entre mensajes
         await gestor.alerta_pago_proximo()
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)  # Espera 3 segundos
         await gestor.alertas_hoy()
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)  # Espera 3 segundos
         await gestor.resumen_diario()
-        
         print("Alertas completadas exitosamente")
         
     except Exception as e:
